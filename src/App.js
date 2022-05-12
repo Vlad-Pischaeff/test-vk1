@@ -46,6 +46,7 @@ const App = () => {
     let userLink = await searchUser(searchData);
     if (userLink.items.length) {
       setUser(userLink.items[0]);
+			setMessage(null);
     } else {
 			setUser({});
       setMessage('НЕТ ТАКОГО ПОЛЬЗОВАТЕЛЯ');
