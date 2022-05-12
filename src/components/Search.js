@@ -1,6 +1,6 @@
 import { Group, Header, FormLayout, FormLayoutGroup, FormItem, Input, Button } from '@vkontakte/vkui';
 
-const Search = ({ handlerSubmit, handlerChange }) => {
+const Search = ({ handlerSubmit, handlerChange, loading }) => {
   return (
     <Group header={<Header mode="secondary">Поиск пользователя</Header>}>
       <FormLayout onSubmit={handlerSubmit}>
@@ -10,7 +10,7 @@ const Search = ({ handlerSubmit, handlerChange }) => {
           </FormItem>
     
           <FormItem>
-            <Button size="l" stretched type="Submit">
+            <Button size="l" stretched type="Submit" loading={loading} >
               Искать
             </Button>
           </FormItem>
