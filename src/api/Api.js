@@ -27,7 +27,7 @@ export const searchUser = async (user) => {
         "fields": "sex, city, bdate, photo_200",
       }
     });
-    console.log('user...', response);
+    console.log('get user...', response);
     return response;
   } catch(e) {
     console.log('catch user error...', e);
@@ -46,7 +46,7 @@ export const getFriends = async (userId) => {
         "fields": "sex, city, bdate, photo_100, nickname",
       }
     });
-    console.log('friends...', response);
+    console.log('get friends...', response);
     return response;
   } catch(e) {
     return ('catch friends error...', e);

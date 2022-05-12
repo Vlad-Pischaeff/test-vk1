@@ -10,13 +10,13 @@ const Friends = ({ friends }) => {
       </Cell>
     </div>
   );
-
+  
   return (
-    friends.length === 0
-      ? <div></div>
-      : <Group header={<Header mode="secondary">Друзья</Header>}>
+    friends.length
+      ? <Group header={<Header mode="secondary">Друзья</Header>}>
           { list }
         </Group>
+      : <div></div>
   );
 };
 

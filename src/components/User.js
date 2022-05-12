@@ -1,6 +1,6 @@
 import { Group, Header, Cell, Avatar } from '@vkontakte/vkui';
 
-const User = ({ user }) => {
+const User = ({ user, message }) => {
   return (
     user.id 
       ? <Group header={<Header mode="secondary">Пользователь</Header>}>
@@ -11,7 +11,7 @@ const User = ({ user }) => {
             {`${user?.first_name} ${user?.last_name}`}
           </Cell>
         </Group>
-      : <div></div>
+      : <Cell>{message}</Cell>
   );
 };
 
