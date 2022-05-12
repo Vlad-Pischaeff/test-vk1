@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import bridge from '@vkontakte/vk-bridge';
-import { View, ScreenSpinner, AdaptivityProvider, AppRoot, ConfigProvider, SplitLayout, SplitCol } from '@vkontakte/vkui';
+import { View, ScreenSpinner, AdaptivityProvider, AppRoot, ConfigProvider, Panel} from '@vkontakte/vkui';
 import '@vkontakte/vkui/dist/vkui.css';
 
-import Home from './panels/Home';
-import Persik from './panels/Persik';
+import User from './components/User';
+import Friends from './components/Friends';
+import Search from './components/Search';
+import { searchUser, getToken, getFriends } from './Api';
 
 const App = () => {
+	const [user, setUser] = useState({});
+	const [friends, setFriends] = useState([]);
 	const [scheme, setScheme] = useState('bright_light')
-	const [activePanel, setActivePanel] = useState('home');
-	const [fetchedUser, setUser] = useState(null);
-	const [popout, setPopout] = useState(<ScreenSpinner size='large' />);
+	const [searchData, setSearchData] = useState(null);
+	const [message, setMessage] = useState('');
 
 	useEffect(() => {
 		bridge.subscribe(({ detail: { type, data }}) => {
@@ -18,31 +21,45 @@ const App = () => {
 				setScheme(data.scheme)
 			}
 		});
-
-		async function fetchData() {
-			const user = await bridge.send('VKWebAppGetUserInfo');
-			setUser(user);
-			setPopout(null);
-		}
-		fetchData();
+		getToken();
 	}, []);
 
-	const go = e => {
-		setActivePanel(e.currentTarget.dataset.to);
-	};
+	useEffect(() => {
+		if (user?.id) {
+			setMessage('ПОИСК ДРУЗЕЙ');
+			getFriends(user.id)
+				.then(({ items }) => setFriends(items));
+			setMessage('');
+		}
+	}, [user]);
+
+	const handlerChange = e => {
+    setSearchData(e.target.value);
+  }
+
+	const handlerSubmit = async e => {
+    e.preventDefault();
+		setMessage('ПОИСК');
+    let userLink = await searchUser(searchData);
+    if (userLink.count) {
+      setUser(userLink.items[0]);
+      setMessage('');
+    } else {
+      setMessage('НЕТ ТАКОГО ПОЛЬЗОВАТЕЛЯ');
+    }
+  }
 
 	return (
 		<ConfigProvider scheme={scheme}>
 			<AdaptivityProvider>
 				<AppRoot>
-					<SplitLayout popout={popout}>
-						<SplitCol>
-							<View activePanel={activePanel}>
-								<Home id='home' fetchedUser={fetchedUser} go={go} />
-								<Persik id='persik' go={go} />
-							</View>
-						</SplitCol>
-					</SplitLayout>
+					<View activePanel="search">
+						<Panel id="search">
+							<Search handlerChange={handlerChange} handlerSubmit={handlerSubmit} />
+							{	message === 'ПОИСК' ? <ScreenSpinner />	: <User user={user} /> }
+							{	message === 'ПОИСК ДРУЗЕЙ' ? <ScreenSpinner /> : <Friends friends={friends} />	}
+						</Panel>
+					</View>
 				</AppRoot>
 			</AdaptivityProvider>
 		</ConfigProvider>
