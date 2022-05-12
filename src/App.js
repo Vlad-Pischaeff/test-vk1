@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import bridge from '@vkontakte/vk-bridge';
-import { View, ScreenSpinner, AdaptivityProvider, AppRoot, ConfigProvider, Panel} from '@vkontakte/vkui';
+import { View, Spinner, AdaptivityProvider, AppRoot, ConfigProvider, Panel} from '@vkontakte/vkui';
 import '@vkontakte/vkui/dist/vkui.css';
 
 import User from './components/User';
 import Friends from './components/Friends';
 import Search from './components/Search';
-import { searchUser, getToken, getFriends } from './Api';
+import { searchUser, getToken, getFriends } from './api/Api';
 
 const App = () => {
 	const [user, setUser] = useState({});
@@ -14,6 +14,8 @@ const App = () => {
 	const [scheme, setScheme] = useState('bright_light')
 	const [searchData, setSearchData] = useState(null);
 	const [message, setMessage] = useState('');
+	const [spinnerUser, setSpinnerUser] = useState(false);
+	const [spinnerFriends, setSpinnerFriends] = useState(false);
 
 	useEffect(() => {
 		bridge.subscribe(({ detail: { type, data }}) => {
@@ -26,10 +28,10 @@ const App = () => {
 
 	useEffect(() => {
 		if (user?.id) {
-			setMessage('ПОИСК ДРУЗЕЙ');
+			setSpinnerFriends(true);
 			getFriends(user.id)
 				.then(({ items }) => setFriends(items));
-			setMessage('');
+			setSpinnerFriends(false);
 		}
 	}, [user]);
 
@@ -39,11 +41,11 @@ const App = () => {
 
 	const handlerSubmit = async e => {
     e.preventDefault();
-		setMessage('ПОИСК');
+		setSpinnerUser(true);
     let userLink = await searchUser(searchData);
     if (userLink.count) {
       setUser(userLink.items[0]);
-      setMessage('');
+      setSpinnerUser(false);
     } else {
       setMessage('НЕТ ТАКОГО ПОЛЬЗОВАТЕЛЯ');
     }
@@ -56,8 +58,8 @@ const App = () => {
 					<View activePanel="search">
 						<Panel id="search">
 							<Search handlerChange={handlerChange} handlerSubmit={handlerSubmit} />
-							{	message === 'ПОИСК' ? <ScreenSpinner />	: <User user={user} /> }
-							{	message === 'ПОИСК ДРУЗЕЙ' ? <ScreenSpinner /> : <Friends friends={friends} />	}
+							{	spinnerUser ? <Spinner />	: <User user={user} /> }
+							{	spinnerFriends ? <Spinner /> : <Friends friends={friends} /> }
 						</Panel>
 					</View>
 				</AppRoot>
